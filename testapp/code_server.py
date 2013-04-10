@@ -160,7 +160,7 @@ class CodeServer(object):
             ref_path = join(MY_DIR, ref_path)
         if not test_case_path.startswith('/'):
             test_case_path = join(MY_DIR, test_case_path)
-
+	print test_case_path
         # Add a new signal handler for the execution of this code.
         old_handler = signal.signal(signal.SIGALRM, timeout_handler)
         signal.alarm(SERVER_TIMEOUT)
@@ -194,6 +194,7 @@ class CodeServer(object):
         if it takes more than 2 seconds to run.  Return the Popen object, the
         stdout and stderr.
         """
+	print cmd_args
         try:
             proc = subprocess.Popen(cmd_args, *args, **kw)
             stdout, stderr = proc.communicate()
@@ -203,6 +204,7 @@ class CodeServer(object):
             # Re-raise exception.
             raise
         return proc, stdout, stderr
+
 
     def check_bash_script(self, ref_script_path, submit_script_path, 
                           test_case_path=None):
@@ -280,6 +282,214 @@ class CodeServer(object):
                                                     stdnt_stdout+stdnt_stderr)
                 return False, err
 
+    def run_c_code(self, answer, test_code, in_dir=None):
+        """Tests given C code  (`answer`) with the `test_code` supplied.
+
+        The testcode should typically contain two lines, the first is a path to
+        the reference script we are to compare against.  The second is a path
+        to the arguments to be supplied to the reference and submitted script.
+        The output of these will be compared for correctness.
+
+        If the path's start with a "/" then we assume they are absolute paths.
+        If not, we assume they are relative paths w.r.t. the location of this
+        code_server script.
+
+        If the optional `in_dir` keyword argument is supplied it changes the 
+        directory to that directory (it does not change it back to the original when
+        done).
+
+        Returns
+        -------
+        
+        A tuple: (success, error message).
+        
+        """
+        if in_dir is not None and isdir(in_dir):
+            os.chdir(in_dir)
+
+        def _set_exec(fname):
+            os.chmod(fname,  stat.S_IRUSR|stat.S_IWUSR|stat.S_IXUSR
+                             |stat.S_IRGRP|stat.S_IWGRP|stat.S_IXGRP
+                             |stat.S_IROTH|stat.S_IWOTH|stat.S_IXOTH)
+	submit_f = open('submit.c', 'w')
+	submit_f.write(answer.lstrip()); submit_f.close()
+        submit_path = abspath(submit_f.name)
+        _set_exec(submit_path)
+
+        ref_path, test_case_path = test_code.strip().splitlines()
+        if not ref_path.startswith('/'):
+            ref_path = join(MY_DIR, ref_path)
+        if not test_case_path.startswith('/'):
+            test_case_path = join(MY_DIR, test_case_path)
+
+        # Add a new signal handler for the execution of this code.
+        old_handler = signal.signal(signal.SIGALRM, timeout_handler)
+        signal.alarm(SERVER_TIMEOUT)
+
+        # Do whatever testing needed.
+        success = False
+        try:
+            success, err = self.check_c_script(ref_path, submit_path, test_case_path)
+        except TimeoutException:
+            err = self.timeout_msg
+        except:
+            type, value = sys.exc_info()[:2]
+            err = "Error: {0}".format(repr(value))
+        finally:
+            # Set back any original signal handler.
+            signal.signal(signal.SIGALRM, old_handler) 
+
+        # Delete the created file.
+        os.remove(submit_path)
+
+        # Cancel the signal if any, see signal.alarm documentation.
+        signal.alarm(0)
+
+        # Put us back into the server pool queue since we are free now.
+        self.queue.put(self.port)
+
+        return success, err
+
+    def _run_command_compile(self, cmd_args, *args, **kw):
+        """Compile C code and returns errors if any. 
+	Run a command in a subprocess while blocking, the process is killed
+        if it takes more than 2 seconds to run.  Return the Popen object, the
+        stdout and stderr.
+        """
+	print cmd_args
+	#command = "gcc "+cmd_args
+	try:
+	    proc_compile=subprocess.Popen(cmd_args,shell=True,stdin=None,stdout=subprocess.PIPE,
+						stderr=subprocess.PIPE)
+	    out,err=proc_compile.communicate()
+	except ValueError:
+	    print "ValueError"
+        print cmd_args	
+	print out, err
+        return proc_compile, out, err
+
+
+    def _run_command_c(self, cmd_args, *args, **kw):
+        """Run a command in a subprocess while blocking, the process is killed
+        if it takes more than 2 seconds to run.  Return the Popen object, the
+        stdout and stderr.
+        """
+	
+	print cmd_args
+        try:
+            proc = subprocess.Popen(cmd_args, *args, **kw)
+            stdout, stderr = proc.communicate()
+        except TimeoutException:
+            # Runaway code, so kill it.
+            proc.kill()
+            # Re-raise exception.
+            raise
+        return proc, stdout, stderr
+
+	
+    def check_c_script(self, ref_script_path, submit_script_path, 
+                          test_case_path=None):
+        """ Function validates student script using instructor script as
+        reference. Test cases can optionally be provided.  The first argument
+        ref_script_path, is the path to instructor script, it is assumed to
+        have executable permission.  The second argument submit_script_path, is
+        the path to the student script, it is assumed to have executable
+        permission.  The Third optional argument is the path to test the
+        scripts.  Each line in this file is a test case and each test case is
+        passed to the script as standard arguments.
+        
+        Returns
+        --------
+
+        returns (True, "Correct answer") : If the student script passes all test
+        cases/have same output, when compared to the instructor script
+        
+        returns (False, error_msg): If
+        the student script fails a single test/have dissimilar output, when
+        compared to the instructor script.
+        
+        Returns (False, error_msg): If mandatory arguments are not files or if the
+        required permissions are not given to the file(s).
+        
+        """
+        if not isfile(ref_script_path):
+            return False, "No file at %s"%ref_script_path
+        if not isfile(submit_script_path):
+            return False, 'No file at %s'%submit_script_path
+        if not os.access(ref_script_path, os.X_OK):
+            return False, 'Script %s is not executable'%ref_script_path
+        if not os.access(submit_script_path, os.X_OK):
+            return False, 'Script %s is not executable'%submit_script_path
+       
+ 
+	
+        if test_case_path is None:
+            ref_script_path="gcc "+ref_script_path+" -o /tmp/submit"
+	    submit_script_path="gcc "+submit_script_path+" -o /tmp/submitstd" 
+	
+            ret = self._run_command_compile(ref_script_path, stdin=None,
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            proc, inst_stdout, inst_stderr = ret
+            ret  = self._run_command_compile(submit_script_path, stdin=None,
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            proc, stdnt_stdout, stdnt_stderr = ret
+            if inst_stdout in stdnt_stdout:
+               return True, 'Correct answer'
+            else:
+               err = "Error: expected %s, got %s"%(inst_stderr, stdnt_stderr)
+               return False, err
+        else:
+            ref_script_path2="gcc "+ref_script_path+" -o /tmp/submit"
+	    submit_script_path2="gcc "+submit_script_path+" -o /tmp/submitstd" 
+	
+            ret = self._run_command_compile(ref_script_path2, stdin=None,
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            proc, inst_stdout, inst_stderr = ret
+            ret  = self._run_command_compile(submit_script_path2, stdin=None,
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            proc, stdnt_stdout, stdnt_stderr = ret
+            if stdnt_stderr=='':
+ # only if compilation is successful, the program is executed and tested with testcases                 		
+	        print "here1"
+                if not isfile(test_case_path):
+                    return False, "No test case at %s"%test_case_path
+                if not os.access(test_case_path, os.R_OK):
+                    return False, "Test script %s, not readable"%test_case_path
+                valid_answer = True  # We initially make it one, so that we can stop 
+                              # once a test case fails
+                loop_count = 0    # Loop count has to be greater than or equal to one.
+                              # Useful for caching things like empty test files,etc.
+                test_cases = open(test_case_path).readlines()
+                num_lines = len(test_cases)
+	        print test_cases
+		ref_script_path3 = "/tmp/submit"
+		submit_script_path3="/tmp/submitstd"
+                for test_case in test_cases:
+                    loop_count += 1
+                    if valid_answer:
+                        args = [ ref_script_path3 ] + [x for x in test_case.split()]
+		        print args
+                        ret = self._run_command_c(args, stdin=None, 
+                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                        proc, inst_stdout, inst_stderr = ret
+                        args = [ submit_script_path3 ] + [x for x in test_case.split()]
+                        ret = self._run_command_c(args, stdin=None, 
+                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                        proc, stdnt_stdout, stdnt_stderr = ret
+                        valid_answer = inst_stdout in stdnt_stdout
+                if valid_answer and (num_lines == loop_count):
+                    return True, "Correct answer"
+                else:
+                    err = "Error: expected %s, got %s"%(inst_stdout+inst_stderr,
+                                                    stdnt_stdout+stdnt_stderr)
+                    return False, err
+
+
+            else:
+                err = "Error: expected %s, got %s"%(inst_stderr, stdnt_stderr)
+                return False, err
+
+        
 
     def run(self):
         """Run XMLRPC server, serving our methods.
