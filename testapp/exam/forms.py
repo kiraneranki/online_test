@@ -16,7 +16,9 @@ QUESTION_TYPE_CHOICES = (
        ("python", "Python"),
        ("bash", "Bash"),
        ("mcq", "MCQ"),
-       ("C","C language"),
+       ("C","C Language"),
+       ("C++","C++ Language"),
+       ("Java","Java Language"),
        )
 
 UNAME_CHARS = letters + "._" + digits

@@ -17,6 +17,9 @@ QUESTION_TYPE_CHOICES = (
         ("python", "Python"),
         ("bash", "Bash"),
         ("mcq", "MultipleChoice"),
+	("C","C Language"),
+	("C++","C++ Language"),
+	("Java","Java Language")
         )
 
 ################################################################################
@@ -124,7 +127,7 @@ class AnswerPaper(models.Model):
     # data.
     profile = models.ForeignKey(Profile)
 
-    # All questions that remains to attempt to perticular Student
+    # All questions that remains to attempt to particular Student
     questions = models.CharField(max_length=128)
 
     # The Quiz to which this question paper is attached to.
