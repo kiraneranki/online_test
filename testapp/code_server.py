@@ -956,7 +956,13 @@ class CodeServer(object):
                              |stat.S_IRGRP|stat.S_IWGRP|stat.S_IXGRP
                              |stat.S_IROTH|stat.S_IWOTH|stat.S_IXOTH)
         submit_f = open('submit.sce', 'w')
-        submit_f.write(answer.lstrip()); submit_f.close()
+	submit_f.write("mode(-1);\nlines(0);\nmode(-1);\ntry\n")
+	submit_f.write(answer.lstrip());
+	submit_f.write("\nmode(-1);\nexit();\ncatch\n[error_message,error_number]=lasterror(%t);\n")
+	submit_f.write("error_file=file('open','/tmp/message.err');")
+	submit_f.write("\nwrite(error_file,error_message);\nfile('close',error_file);\n")
+	submit_f.write("end;\nexit")
+	submit_f.close()
         submit_path = abspath(submit_f.name)
         _set_exec(submit_path)
 
@@ -985,6 +991,10 @@ class CodeServer(object):
 
         # Delete the created file.
         os.remove(submit_path)
+	
+	# Delete the error file created
+	if isfile('/tmp/message.err'):
+	    os.remove('/tmp/message.err')
 
         # Cancel the signal if any, see signal.alarm documentation.
         signal.alarm(0)
@@ -1001,13 +1011,19 @@ class CodeServer(object):
         """
 	print cmd_args
         try:
-            proc = subprocess.Popen(cmd_args, *args, **kw)
-            stdout, stderr = proc.communicate()
+	    print "here"
+	    proc = subprocess.Popen(cmd_args, *args, **kw)
+	    stdout, stderr = proc.communicate()
         except TimeoutException:
             # Runaway code, so kill it.
             proc.kill()
             # Re-raise exception.
             raise
+	if isfile('/tmp/message.err'):			# Check if the error file is created
+	    error_file=open('/tmp/message.err')		# If yes then save it into stderr
+	    stderr=str(error_file.readlines()) 
+	else:
+	    print "no errors"
         return proc, stdout, stderr
 
 
@@ -1075,16 +1091,19 @@ class CodeServer(object):
                 if valid_answer:
                     args =  ref_script_path2  + [x for x in test_case.split()]
 		    #args = 'scilab '
-                    ret = self._run_command(args,shell=False,stdin=None, 
+                    ret = self._run_command_scilab(args,shell=False,stdin=None, 
                                     stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                     proc, inst_stdout, inst_stderr = ret
 		    print inst_stdout,inst_stderr
                     args =  submit_script_path2  + [x for x in test_case.split()]
-                    ret = self._run_command(args,shell=False, stdin=None, 
+                    ret = self._run_command_scilab(args,shell=False, stdin=None, 
                                     stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                     proc, stdnt_stdout, stdnt_stderr = ret
                     print stdnt_stdout,stdnt_stderr
-                    valid_answer = inst_stdout in stdnt_stdout
+		    if stdnt_stderr=='':			    # check for any errors
+                        valid_answer = inst_stdout in stdnt_stdout
+   		    else:
+			valid_answer = False
             if valid_answer and (num_lines == loop_count):
                 return True, "Correct answer"
             else:
