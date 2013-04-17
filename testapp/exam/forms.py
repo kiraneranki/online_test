@@ -19,6 +19,7 @@ QUESTION_TYPE_CHOICES = (
        ("C","C Language"),
        ("C++","C++ Language"),
        ("Java","Java Language"),
+       ("Scilab","Scilab Language")
        )
 
 UNAME_CHARS = letters + "._" + digits

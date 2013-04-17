@@ -19,7 +19,8 @@ QUESTION_TYPE_CHOICES = (
         ("mcq", "MultipleChoice"),
 	("C","C Language"),
 	("C++","C++ Language"),
-	("Java","Java Language")
+	("Java","Java Language"),
+	("Scilab","Scilab Language")
         )
 
 ################################################################################

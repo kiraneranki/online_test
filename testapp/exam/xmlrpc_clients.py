@@ -24,6 +24,7 @@ class CodeServerProxy(object):
 			"C": 'run_c_code',
 			"C++":'run_cplus_code',
 			"Java":'run_java_code',
+			"Scilab":'run_scilab_code',
 		       }
     
     def run_code(self, answer, test_code, user_dir, language):
