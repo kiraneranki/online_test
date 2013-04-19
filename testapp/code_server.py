@@ -955,13 +955,14 @@ class CodeServer(object):
             os.chmod(fname,  stat.S_IRUSR|stat.S_IWUSR|stat.S_IXUSR
                              |stat.S_IRGRP|stat.S_IWGRP|stat.S_IXGRP
                              |stat.S_IROTH|stat.S_IWOTH|stat.S_IXOTH)
+	#Append try and catch in the scilab code to get the errors
         submit_f = open('submit.sce', 'w')
-	submit_f.write("mode(-1);\nlines(0);\nmode(-1);\ntry\n")
+	submit_f.write("mode(-1);\nlines(0);\ntry\n")
 	submit_f.write(answer.lstrip());
 	submit_f.write("\nmode(-1);\nexit();\ncatch\n[error_message,error_number]=lasterror(%t);\n")
 	submit_f.write("error_file=file('open','/tmp/message.err');")
 	submit_f.write("\nwrite(error_file,error_message);\nfile('close',error_file);\n")
-	submit_f.write("end;\nexit")
+	submit_f.write("end;\nexit\n")
 	submit_f.close()
         submit_path = abspath(submit_f.name)
         _set_exec(submit_path)
@@ -1091,12 +1092,12 @@ class CodeServer(object):
                 if valid_answer:
                     args =  ref_script_path2  + [x for x in test_case.split()]
 		    #args = 'scilab '
-                    ret = self._run_command_scilab(args,shell=False,stdin=None, 
+                    ret = self._run_command_scilab(args,shell=False,stdin=subprocess.PIPE, 
                                     stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                     proc, inst_stdout, inst_stderr = ret
 		    print inst_stdout,inst_stderr
                     args =  submit_script_path2  + [x for x in test_case.split()]
-                    ret = self._run_command_scilab(args,shell=False, stdin=None, 
+                    ret = self._run_command_scilab(args,shell=False, stdin=subprocess.PIPE, 
                                     stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                     proc, stdnt_stdout, stdnt_stderr = ret
                     print stdnt_stdout,stdnt_stderr
