@@ -15,6 +15,7 @@ else:
 
 urlpatterns = patterns('',
     url(URL_BASE, include('exam.urls')),
+    url(r'^mim/', include('mim.urls')),
     #url(r'^admin/', include(admin.site.urls)),
     # Uncomment the admin/doc line below to enable admin documentation:
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),

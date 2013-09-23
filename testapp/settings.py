@@ -150,7 +150,8 @@ INSTALLED_APPS = (
     # 'django.contrib.admindocs',
     'exam',
     'taggit_autocomplete_modified',
-    'debug_toolbar',	
+    'debug_toolbar',
+    'mim',
 )
 
 # A sample logging configuration. The only tangible logging
