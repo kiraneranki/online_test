@@ -237,3 +237,11 @@ the next."""
     def __unicode__(self):
         u = self.user
         return u'Question paper for {0} {1}'.format(u.first_name, u.last_name)
+
+###############################################################################
+class SpokenTutorialUser(models.Model):
+    """
+       Spoken Tutorial User details
+    """
+    sptu_username = models.CharField(max_length=25)
+    foss = models.CharField(max_length=25)

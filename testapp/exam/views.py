@@ -15,7 +15,7 @@ from taggit.models import Tag
 from itertools import chain
 # Local imports.
 from exam.models import Quiz, Question, QuestionPaper
-from exam.models import Profile, Answer, AnswerPaper, User
+from exam.models import Profile, Answer, AnswerPaper, User, SpokenTutorialUser
 from exam.forms import UserRegisterForm, UserLoginForm, QuizForm, QuestionForm
 from exam.xmlrpc_clients import code_server
 from settings import URL_ROOT
@@ -137,6 +137,15 @@ def quizlist_user(request):
     avail_quiz = list(QuestionPaper.objects.filter(quiz__active=True))
     user_answerpapers = AnswerPaper.objects.filter(user=user)
     user_quiz = []
+
+    sptu_quiz = list(SpokenTutorialUser.objects.filter(sptu_username=user))
+    user_identity = User.objects.get(username=user)
+    if user_identity.first_name == "from spoken tutorial":
+        for q in avail_quiz:
+            for sq in sptu_quiz:
+                if sq.foss.lower() in q.quiz.description.lower():
+                     user_quiz.append(q)
+        avail_quiz = user_quiz
 
     if user_answerpapers.count() == 0:
         context = {'quizzes': avail_quiz}

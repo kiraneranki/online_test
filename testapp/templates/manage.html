@@ -32,7 +32,8 @@
                <li><a href="{{ URL_ROOT }}/exam/manage/showquiz">Quizzes</a></li>
                <li><a href="{{ URL_ROOT }}/exam/manage/showquestionpapers">Question Papers</a></li>
        	       <li><a href="{{ URL_ROOT }}/exam/manage/gradeuser">Grade User</a></li>
-	           <li><a href="{{ URL_ROOT }}/exam/manage/monitor">Monitor</a></li>
+	       <li><a href="/mim/">Spoken Tutorial</a></li>
+               <li><a href="{{ URL_ROOT }}/exam/manage/monitor">Monitor</a></li>
         </ul>
 	<ul style="float:right;">
 	<li><strong><a style='cursor:pointer' onClick='location.replace("{{URL_ROOT}}/exam/complete/");'>Log out</a></strong></li>
@@ -43,7 +44,7 @@
   <div class="container">
      <div class="content">
          <div class="page-header">
-		<h3><center>{% block subtitle %}Welcome {{ user.first_name.title }}  {{user.last_name.title}} {% endblock %}</center></h3><br>
+		<h3><center>{% block subtitle %}Welcome {{user.first_name.title }}  {{user.last_name.title}} {% endblock %}</center></h3><br>
          </div>
          <div class=row>
             <div class=span14>
