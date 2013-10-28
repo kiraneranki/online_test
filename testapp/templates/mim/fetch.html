@@ -1,0 +1,30 @@
+{% extends "mim.html" %}
+
+
+{% block subtitle %}Users Fetched{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" media="all" type="text/css" href="{{ URL_ROOT }}/static/exam/css/autotaggit.css" />
+{% endblock %}
+{% block manage %}
+<form name=frm id=frm action="" method="post" >
+  {% csrf_token %}
+   <table  border="1" cellpadding="2">
+   <tr>
+   <th> Username </th>
+   <th> FOSS </th>
+   <th> Status </th>
+   </tr>
+   {% for user in detail_list %}
+   <tr>
+      <td> {{user.0}} </td>
+      <td> {{user.1}} </td>
+      <td> {{user.2}} </td>
+   </tr>
+  {% endfor %}
+  </table>
+
+<!--  <center><button class="btn" type="submit" id="submit" name="Show Users">Show Users</button>-->
+  <button align=right class="btn" type="button" name="button" onClick='location.replace("{{URL_ROOT}}/mim");'>Done</button> </center>
+</form>
+{% endblock %}
