@@ -39,7 +39,7 @@
         {% for paper in quizzes_taken %}
             <tr>
                 <td>
-                    <a href="{{ URL_ROOT }}/exam/intro/{{paper.id}}">{{ paper.question_paper.quiz.description }}</a>
+                    {{ paper.question_paper.quiz.description }}
                 </td>
                 <td>
                     {{ paper.result }}

@@ -171,7 +171,7 @@ def results_user(request):
     papers = AnswerPaper.objects.filter(user=user)
     quiz_marks = []
     for paper in papers:
-        marks_obtained = paper.get_marks_obtained()
+        marks_obtained = paper.update_marks_obtained()
         max_marks = paper.question_paper.total_marks
         percentage = round((marks_obtained/max_marks)*100, 2)
         temp = paper.question_paper.quiz.description, marks_obtained,\
@@ -217,6 +217,7 @@ def edit_question(request):
     options = request.POST.getlist('options')
     type = request.POST.getlist('type')
     active = request.POST.getlist('active')
+    language = request.POST.getlist('language')
     snippet = request.POST.getlist('snippet')
     for j, question_id in enumerate(question_list):
         question = Question.objects.get(id=question_id)
@@ -226,6 +227,7 @@ def edit_question(request):
         question.test = test[j]
         question.options = options[j]
         question.active = active[j]
+        question.language = language[j]
         question.snippet = snippet[j]
         question.type = type[j]
         question.save()
@@ -260,6 +262,7 @@ def add_question(request, question_id=None):
                 d.options = form['options'].data
                 d.type = form['type'].data
                 d.active = form['active'].data
+                d.language = form['language'].data
                 d.snippet = form['snippet'].data
                 d.save()
                 question = Question.objects.get(id=question_id)
@@ -290,6 +293,7 @@ def add_question(request, question_id=None):
             form.initial['options'] = d.options
             form.initial['type'] = d.type
             form.initial['active'] = d.active
+            form.initial['language'] = d.language
             form.initial['snippet'] = d.snippet
             form_tags = d.tags.all()
             form_tags_split = form_tags.values('name')
@@ -420,7 +424,7 @@ def automatic_questionpaper(request, questionpaper_id=None):
                 quest_paper.save()
                 for quest in questions:
                     q = Question.objects.get(id=quest)
-                    quest_paper.questions.add(q)
+                    quest_paper.fixed_questions.add(q)
                 return my_redirect('/exam/manage/showquiz')
             else:
                 no_questions = int(request.POST.get('num_questions'))
@@ -787,7 +791,7 @@ def complete(request, reason=None, questionpaper_id=None):
     else:
         q_paper = QuestionPaper.objects.get(id=questionpaper_id)
         paper = AnswerPaper.objects.get(user=user, question_paper=q_paper)
-        obt_marks = paper.get_marks_obtained()
+        obt_marks = paper.update_marks_obtained()
         tot_marks = paper.question_paper.total_marks
         if obt_marks == paper.question_paper.total_marks:
             context = {'message': "Hurray ! You did an excellent job.\
@@ -971,6 +975,7 @@ def show_all_questions(request):
             form.initial['options'] = d.options
             form.initial['type'] = d.type
             form.initial['active'] = d.active
+            form.initial['language'] = d.language
             form.initial['snippet'] = d.snippet
             form_tags = d.tags.all()
             form_tags_split = form_tags.values('name')
