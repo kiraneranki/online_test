@@ -44,4 +44,6 @@ urlpatterns = patterns('exam.views',
     url(r'^manage/designquestionpaper/manual/(?P<questionpaper_id>\d+)/$',\
                                                         'manual_questionpaper'),
     url(r'^manage/quizlist/(?P<language>[a-zA-Z0-9_.+]+)/$', 'lang_quiz_list'),
+    url(r'^manage/designquestionpaper/manual_form/$', 'manual_form'),
+    url(r'^ajax/questionpaper/(?P<query>.+)/$', 'ajax_questionpaper')
 )

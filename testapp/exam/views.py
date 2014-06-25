@@ -11,12 +11,14 @@ from django.shortcuts import render_to_response, get_object_or_404, redirect
 from django.template import RequestContext
 from django.http import Http404
 from django.db.models import Sum
+from django.views.decorators.csrf import csrf_exempt
 from taggit.models import Tag
 from itertools import chain
 # Local imports.
-from exam.models import Quiz, Question, QuestionPaper
+from exam.models import Quiz, Question, QuestionPaper, QuestionSet
 from exam.models import Profile, Answer, AnswerPaper, User
-from exam.forms import UserRegisterForm, UserLoginForm, QuizForm, QuestionForm
+from exam.forms import UserRegisterForm, UserLoginForm, QuizForm,\
+        QuestionForm, RandomQuestionForm
 from exam.xmlrpc_clients import code_server
 from settings import URL_ROOT
 
@@ -140,7 +142,7 @@ def quizlist_user(request):
     pre_requisites = []
 
     if user_answerpapers.count() == 0:
-        context = {'quizzes': avail_quizzes, 'user':user, 
+        context = {'quizzes': avail_quizzes, 'user':user,
                    'quizzes_taken':None}
         return my_render_to_response("exam/quizzes_user.html", context)
 
@@ -150,7 +152,7 @@ def quizlist_user(request):
                     answer_paper.end_time != answer_paper.start_time:
                 avail_quizzes.remove(quiz)
                 quizzes_taken.append(answer_paper)
-    
+
     context = {'quizzes': avail_quizzes, 'user': user,
                'quizzes_taken': quizzes_taken}
     return my_render_to_response("exam/quizzes_user.html", context)
@@ -323,7 +325,8 @@ def add_quiz(request, quiz_id=None):
             if quiz_id is None:
                 form.save()
                 quiz = Quiz.objects.order_by("-id")[0]
-                return my_redirect("/exam/manage/designquestionpaper")
+                #return my_redirect("/exam/manage/designquestionpaper")
+                return my_redirect("/exam/manage/designquestionpaper/manual_form")
             else:
                 d = Quiz.objects.get(id=quiz_id)
                 d.start_date = form['start_date'].data
@@ -737,7 +740,7 @@ def check(request, q_id, questionpaper_id=None):
     else:
         user_dir = get_user_dir(user)
         success, err_msg = code_server.run_code(answer_check, question.test,
-                                                user_dir, question.type)
+                                                user_dir, question.language)
         new_answer.error = err_msg
         if success:
             # Note the success and save it along with the marks.
@@ -791,8 +794,13 @@ def complete(request, reason=None, questionpaper_id=None):
     else:
         q_paper = QuestionPaper.objects.get(id=questionpaper_id)
         paper = AnswerPaper.objects.get(user=user, question_paper=q_paper)
-        obt_marks = paper.update_marks_obtained()
+        obt_marks = paper.marks_obtained
         tot_marks = paper.question_paper.total_marks
+
+        paper.update_marks_obtained()
+        paper.update_percent()
+        paper.update_result()
+        paper.save()
         if obt_marks == paper.question_paper.total_marks:
             context = {'message': "Hurray ! You did an excellent job.\
                        you answered all the questions correctly.\
@@ -811,9 +819,14 @@ def complete(request, reason=None, questionpaper_id=None):
         message = 'You are successfully Logged out.'
     if request.method == 'POST' and 'no' in request.POST:
         no = True
+    paper = AnswerPaper.objects.get(id=answerpaper_id)
+    paper.update_marks_obtained()
+    paper.update_percent()
+    paper.update_result()
+
     if not no:
         # Logout the user and quit with the message given.
-        answer_paper = AnswerPaper.objects.get(id=answerpaper_id)
+        #answer_paper = AnswerPaper.objects.get(id=answerpaper_id)
         answer_paper.endtime = datetime.datetime.now()
         answer_paper.save()
         return my_redirect('/exam/quizzes/')
@@ -1041,7 +1054,7 @@ def grade_user(request, username):
         context = {'data': data}
         return my_render_to_response('exam/grade_user.html', context,
                                      context_instance=ci)
-                                     
+
 
 def lang_quiz_list(request, language=None):
     curr_user = request.user
@@ -1052,3 +1065,66 @@ def lang_quiz_list(request, language=None):
     context = {'quiz_list':quiz_list, 'language':language.title()}
     return my_render_to_response('exam/lang_quiz_list.html', context,
                                      context_instance=ci)
+
+
+
+@csrf_exempt
+def ajax_questionpaper(request, query):
+    if query == 'marks':
+        question_type = request.POST.get('question_type')
+        questions = Question.objects.filter(type=question_type)
+        marks = questions.values_list('points').distinct()
+        return my_render_to_response('exam/ajax_marks.html', {'marks': marks})
+    elif query == 'questions':
+        question_type = request.POST['question_type']
+        marks_selected = request.POST['marks']
+        questions = Question.objects.filter(type=question_type,
+                                            points=marks_selected)
+        return my_render_to_response('exam/ajax_questions.html',
+                              {'questions': questions})
+
+def manual_form(request):
+    user = request.user
+    ci = RequestContext(request)
+
+    if not user.is_authenticated() or not is_moderator(user):
+        raise Http404('You are not allowed to view this page!')
+
+    if request.method == 'POST':
+        fixed_questions = request.POST.getlist('fixed')
+        random_questions = request.POST.getlist('random')
+        random_number = request.POST.getlist('number')
+        is_shuffle = request.POST.get('shuffle_questions', False)
+        if is_shuffle == 'on':
+            is_shuffle = True
+
+        question_paper = QuestionPaper(shuffle_questions=is_shuffle)
+        quiz = Quiz.objects.order_by("-id")[0]
+        tot_marks = 0
+        question_paper.quiz = quiz
+        question_paper.total_marks = tot_marks
+        question_paper.save()
+
+        fixed_questions_ids = ",".join(fixed_questions)
+        fixed_questions_ids_list =  fixed_questions_ids.split(',')
+
+        for question_id in fixed_questions_ids_list:
+            question_paper.fixed_questions.add(question_id)
+        for ran_quest, num in zip(random_questions, random_number):
+            question = Question.objects.get(id=ran_quest[0])
+            marks = question.points
+            question_set = QuestionSet(marks=marks, num_questions=num)
+            question_set.save()
+            for question_id in ran_quest.split(','):
+                question_set.questions.add(question_id)
+                question_paper.random_questions.add(question_set)
+        question_paper.update_total_marks()
+        question_paper.save()
+         #update total_marks
+        return my_redirect('/exam/manage/showquiz')
+    else:
+        form = RandomQuestionForm()
+        context = {'form': form}
+        return my_render_to_response('exam/manual_question_form.html',
+                                     context, context_instance=ci)
+
