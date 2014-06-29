@@ -207,3 +207,12 @@ class QuestionForm(forms.Form):
         new_question.active = active
         new_question.snippet = snippet
         new_question.save()
+
+
+class RandomQuestionForm(forms.Form):
+    question_type = forms.CharField(max_length=8, widget=forms.Select\
+                                    (choices=QUESTION_TYPES))
+    marks = forms.CharField(max_length=8, widget=forms.Select\
+            (choices=(('select', 'Select'),)))
+    shuffle_questions = forms.BooleanField(required=False)
+
