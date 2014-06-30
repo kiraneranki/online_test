@@ -69,10 +69,14 @@ $(document).ready(function(){
         $("#fixed-available input:checkbox").each(function(index, element) {
             if($(this).attr("checked")) {
                 qid = $(this).attr("data-qid");
-                selected.push(qid);
-                $element = $("<div class='qcard'></div>");
-                html += "<li>" + $(this).next().html() + "</li>";
-                count++;
+                console.log(qid)
+                if(!$(this).hasClass("ignore")) {
+                    console.log("here")
+                    selected.push(qid);
+                    $element = $("<div class='qcard'></div>");
+                    html += "<li>" + $(this).next().html() + "</li>";
+                    count++;
+                }
             }
         });
         html = "<ul>" + html + "</ul>";
@@ -105,10 +109,12 @@ $(document).ready(function(){
             $("#random-available input:checkbox").each(function(index, element) {
                 if($(this).attr("checked")) {
                     qid = $(this).attr("data-qid");
-                    selected.push(qid);
-                    $element = $("<div class='qcard'></div>");
-                    html += "<li>" + $(this).next().html() + "</li>";
-                    count++;
+                    if(!$(this).hasClass("ignore")) {
+                        selected.push(qid);
+                        $element = $("<div class='qcard'></div>");
+                        html += "<li>" + $(this).next().html() + "</li>";
+                        count++;
+                    }
                 }
             });
             html = "<ul>" + html + "</ul>";
@@ -155,6 +161,35 @@ $(document).ready(function(){
             $question_type.val('select');
             $marks.val('select')
             $("#selectors").show();
+        }
+    });
+    /* check all questions on checked*/
+    $("#checkall").live("click", function(){
+        if($(this).attr("checked")) {
+             if($("#fixed-tab").hasClass("active")) {
+                 console.log("check")
+                $("#fixed-available input:checkbox").each(function(index, element) {
+                $(this).attr('checked','checked');
+                });
+            }
+            else {
+                $("#random-available input:checkbox").each(function(index, element) {
+                $(this).attr('checked','checked');
+                });
+            }
+         }
+         else {
+            if($("#fixed-tab").hasClass("active")) {
+                console.log("uncheck")
+                $("#fixed-available input:checkbox").each(function(index, element) {
+                $(this).removeAttr('checked');
+                });
+            }
+            else {
+                $("#random-available input:checkbox").each(function(index, element) {
+                $(this).removeAttr('checked');
+                });
+            }
         }
     });
 

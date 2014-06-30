@@ -1,6 +1,11 @@
 <div id="questions">
+    {% if questions %}
+    <input type="checkbox" id="checkall" class="ignore">
+        <span><b> <font size="3"> Select All </font></b></span>
+    {% endif %}
     <ul class="inputs-list">
-        {% for question in questions %}
+
+       {% for question in questions %}
             <li>
                 <label>
                     <input type="checkbox" name="questions" data-qid="{{question.id}}">
