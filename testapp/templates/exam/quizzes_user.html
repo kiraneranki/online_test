@@ -7,7 +7,16 @@
 <link rel="stylesheet" href="{{ URL_ROOT }}/static/exam/css/question_quiz.css" type="text/css" />
 {% endblock %}
 
+{% block script %}
+<script src="{{ URL_ROOT }}/static/exam/js/bootstrap-alert.js"></script>
+<script src="{{ URL_ROOT }}/static/exam/js/quizzes_user.js"></script>
+{% endblock %}
+
+
 {% block manage %}
+    {% if cannot_attempt %}
+        <p>You have not passed the prerequisite & hence you cannot take the quiz.</p>
+    {% endif %}
     <h4>List of quizzes availbale for you</h4>
     {% if not quizzes %}
         <h5>No active quizzes for you</h5>
@@ -42,7 +51,11 @@
                     {{ paper.question_paper.quiz.description }}
                 </td>
                 <td>
-                    {{ paper.result }}
+                    {% if paper.passed %}
+                        <p>Pass</p>
+                    {% else %}
+                        <p>Fail</p>
+                    {% endif %}
                 </td>
             </tr>
         {% endfor %}
