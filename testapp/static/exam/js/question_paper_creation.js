@@ -7,6 +7,7 @@ $(document).ready(function(){
     $question_type = $("#id_question_type");
     $marks = $("#id_marks");
 
+    $total_marks = $("#total_marks");
     /* ajax requsts on selectors change */
     $question_type.change(function() {
         $.ajax({
@@ -23,12 +24,24 @@ $(document).ready(function(){
     });
 
     $marks.change(function() {
+        var fixed_question_list = [];
+        var fixed_inputs = $("input[name=fixed]");
+        var random_question_list = [];
+        var random_inputs = $("input[name=random]");
+        for(var i = 0; i < fixed_inputs.length; i++){
+                fixed_question_list.push($(fixed_inputs[i]).val());
+        }
+        for(var i = 0; i < random_inputs.length; i++){
+                random_question_list.push($(random_inputs[i]).val());
+        }
         $.ajax({
             url: "/exam/ajax/questionpaper/questions/",
             type: "POST",
             data: {
                 question_type: $question_type.val(),
-                marks: $marks.val()
+                marks: $marks.val(),
+                fixed_list: fixed_question_list,
+                random_list: random_question_list
             },
             dataType: "html",
             success: function(output) {
@@ -51,6 +64,8 @@ $(document).ready(function(){
         var selected = [];
         var html = "";
         var $element;
+        var total_marks = parseFloat($total_marks.text());
+        var marks_per = parseFloat($marks.val())
         $("#fixed-available input:checkbox").each(function(index, element) {
             if($(this).attr("checked")) {
                 qid = $(this).attr("data-qid");
@@ -67,22 +82,26 @@ $(document).ready(function(){
             value: selected,
             name: "fixed"
         });
-        $remove = $("<a href='#' class='remove'>&times;</div>");
-        $element.html(count + " questions added").append(html).append($input).append($remove);
+        $remove = $("<a href='#' class='remove' data-num="+count+" data-marks = "+marks_per +">&times;</div>");
+        $element.html(count + " question(s) added").append(html).append($input).append($remove);
         $("#fixed-added").prepend($element);
+        total_marks = total_marks + count * marks_per;
+        $total_marks.text(total_marks)
     e.preventDefault();
     });
 
     /* adding random questions */
     $("#add-random").click(function(e) {
         $numbers = $("#numbers");
-        console.log($numbers.val());
+        random_number = $numbers.val()
         if($numbers.val()) {
             $numbers.removeClass("red-alert");
             var count = 0;
             var selected = [];
             var html = "";
             var $element;
+            var total_marks = parseFloat($total_marks.text());
+            var marks_per = parseFloat($marks.val())
             $("#random-available input:checkbox").each(function(index, element) {
                 if($(this).attr("checked")) {
                     qid = $(this).attr("data-qid");
@@ -104,9 +123,11 @@ $(document).ready(function(){
                 value: $numbers.val(),
                 name: "number"
             });
-            $remove = $("<a href='#' class='remove'>&times;</div>");
-            $element.html(count + " questions added").append(html).append($input_random).append($input_number).append($remove);
+            $remove = $("<a href='#' class='remove' data-num="+random_number+" data-marks = "+marks_per +">&times;</div>");
+            $element.html(random_number + " question(s) will be selected from " + count + " question(s)").append(html).append($input_random).append($input_number).append($remove);
             $("#random-added").prepend($element);
+            total_marks = total_marks + random_number * marks_per;
+            $total_marks.text(total_marks)
         } else {
             $numbers.addClass("red-alert");
         }
@@ -115,6 +136,13 @@ $(document).ready(function(){
 
     /* removing added questions */
     $(".qcard .remove").live("click", function(e) {
+        var marks_per = $(this).attr('data-marks');
+        var num_question = $(this).attr('data-num');
+        var sub_marks = marks_per*num_question;
+        var total_marks = parseFloat($total_marks.text());
+        total_marks = total_marks - sub_marks;
+        $total_marks.text(total_marks);
+
         $(this).parent().slideUp("normal", function(){ $(this).remove(); });
     e.preventDefault();
     });
@@ -124,7 +152,14 @@ $(document).ready(function(){
         if($(this).attr("id") == "finish-tab") {
             $("#selectors").hide();
         } else {
+            $question_type.val('select');
+            $marks.val('select')
             $("#selectors").show();
         }
+    });
+
+    /* show preview on preview click*/
+    $("#preview").click(function(){
+        //preview code
     });
 }); //document

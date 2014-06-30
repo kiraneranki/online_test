@@ -820,9 +820,9 @@ def complete(request, reason=None, questionpaper_id=None):
 
         paper.update_marks_obtained()
         paper.update_percent()
-        paper.update_result()
+        paper.update_passed()
         paper.save()
-        obt_marks = paper.marks_obtained()
+        obt_marks = paper.marks_obtained
         tot_marks = paper.question_paper.total_marks
         if obt_marks == paper.question_paper.total_marks:
             context = {'message': "Hurray ! You did an excellent job.\
@@ -1102,10 +1102,20 @@ def ajax_questionpaper(request, query):
         marks = questions.values_list('points').distinct()
         return my_render_to_response('exam/ajax_marks.html', {'marks': marks})
     elif query == 'questions':
+        fixed_question_list = request.POST.getlist('fixed_list[]')
+        fixed_list = ",".join(fixed_question_list)
+        fixed_list =  fixed_list.split(',')
+        random_question_list = request.POST.getlist('random_list[]')
+        random_list = ",".join(random_question_list)
+        random_list =  random_list.split(',')
         question_type = request.POST['question_type']
         marks_selected = request.POST['marks']
-        questions = Question.objects.filter(type=question_type,
-                                            points=marks_selected)
+        questions = list(Question.objects.filter(type=question_type,
+                                            points=marks_selected))
+        questions = [ question for question in questions \
+                if not str(question.id) in fixed_list ]
+        questions = [ question for question in questions \
+                if not str(question.id) in random_list ]
         return my_render_to_response('exam/ajax_questions.html',
                               {'questions': questions})
 
@@ -1130,23 +1140,22 @@ def manual_form(request):
         question_paper.quiz = quiz
         question_paper.total_marks = tot_marks
         question_paper.save()
-
-        fixed_questions_ids = ",".join(fixed_questions)
-        fixed_questions_ids_list =  fixed_questions_ids.split(',')
-
-        for question_id in fixed_questions_ids_list:
-            question_paper.fixed_questions.add(question_id)
-        for ran_quest, num in zip(random_questions, random_number):
-            question = Question.objects.get(id=ran_quest[0])
-            marks = question.points
-            question_set = QuestionSet(marks=marks, num_questions=num)
-            question_set.save()
-            for question_id in ran_quest.split(','):
-                question_set.questions.add(question_id)
-                question_paper.random_questions.add(question_set)
+        if fixed_questions:
+            fixed_questions_ids = ",".join(fixed_questions)
+            fixed_questions_ids_list =  fixed_questions_ids.split(',')
+            for question_id in fixed_questions_ids_list:
+                question_paper.fixed_questions.add(question_id)
+        if random_questions:
+            for ran_quest, num in zip(random_questions, random_number):
+                question = Question.objects.get(id=ran_quest[0])
+                marks = question.points
+                question_set = QuestionSet(marks=marks, num_questions=num)
+                question_set.save()
+                for question_id in ran_quest.split(','):
+                    question_set.questions.add(question_id)
+                    question_paper.random_questions.add(question_set)
         question_paper.update_total_marks()
         question_paper.save()
-         #update total_marks
         return my_redirect('/exam/manage/showquiz')
     else:
         form = RandomQuestionForm()

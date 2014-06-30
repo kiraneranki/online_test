@@ -50,6 +50,9 @@ select
 </ul>
 
 <form action="{{URL_ROOT}}/exam/manage/designquestionpaper/manual_form/" method="post" name=frm > {% csrf_token %}
+    <div> 
+        <h3>Total Marks:  <span id="total_marks">0.0</span></h3>
+    </div>
 <div class="tab-content">
     <!-- common to fixed and random questions -->
     <div class="row" id="selectors">
@@ -59,6 +62,9 @@ select
         </div> <!-- /.span4 -->
         <div class="span4">
             {{ form.marks }}
+        </div> <!-- /.span4 -->
+         <div class="span4">
+            <div class="pull-left" id="number-wrapper"></div>
         </div> <!-- /.span4 -->
     </div> <!-- /.row -->
     <br><br>
@@ -89,16 +95,15 @@ select
         <div class="row">
             <div class="span7">
                 <div id="random-available-wrapper">
-                    <p><u>Select questions to add:</u></p>
+                    <p><u>Select questions to add to the pool:</u></p>
                     <div id="random-available">
                     </div>
-                    <div class="pull-left" id="number-wrapper"></div>
                     <a id="add-random" class="btn small primary pull-right" href="#">Add to paper</a>
                 </div>
             </div>
             <div class="span7">
                 <div id="random-added-wrapper">
-                    <p><u>Fixed questions currently in paper:</u></p>
+                    <p><u>Pool of  questions currently in paper:</u></p>
                     <div id="random-added">
                     </div>
                 </div>
@@ -111,8 +116,9 @@ select
             <h5>Almost finished creating your question paper</h5>
             <label style="float: none;">
                 {{ form.shuffle_questions }}
-                <span>Check if you want to shuffle your each question order.</span>
+                <span>Auto shuffle.</span>
             </label> <br><br>
+            <!--<input class ="btn primary large" type="button" id="preview" value="Preview question paper">-->
             <input class ="btn primary large" type="submit" value="Save question paper">
         </center>
     </div> <!-- /#finish -->

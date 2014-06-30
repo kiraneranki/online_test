@@ -13,7 +13,7 @@
 
 <div id="num">
     <select id="numbers">
-        <option value="">Select randomizing number</option>
+        <option value="">Number of questions to be picked from the pool</option>
             {% for q in questions %}
                 {% if forloop.counter0 != 0 %}
                      <option value={{forloop.counter0}}>{{ forloop.counter0}}</option>

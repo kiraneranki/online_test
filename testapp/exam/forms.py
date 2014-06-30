@@ -23,7 +23,7 @@ languages = (
     )
 
 question_types = (
-    ("select", "Select"),
+    ("select", "Select Question Type"),
     ("mcq", "Multiple Choice"),
     ("mcc", "Multiple Correct Choices"),
     ("code", "Code"),
@@ -211,8 +211,8 @@ class QuestionForm(forms.Form):
 
 class RandomQuestionForm(forms.Form):
     question_type = forms.CharField(max_length=8, widget=forms.Select\
-                                    (choices=QUESTION_TYPES))
+                                    (choices=question_types))
     marks = forms.CharField(max_length=8, widget=forms.Select\
-            (choices=(('select', 'Select'),)))
+            (choices=(('select', 'Select Marks'),)))
     shuffle_questions = forms.BooleanField(required=False)
 
