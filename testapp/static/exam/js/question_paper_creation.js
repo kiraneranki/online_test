@@ -195,6 +195,22 @@ $(document).ready(function(){
 
     /* show preview on preview click*/
     $("#preview").click(function(){
-        //preview code
+        questions = getQuestions()
+       $('#modal_body').html(questions);
+    $("#myModal").modal('show');
     });
+
+    /*$('#save').click(function(){
+        console.log("save");
+        questions = getQuestions();
+        if(questions.trim() == ""){
+            console.log("here)";
+        }
+    });
+    */
+    function getQuestions(){
+        var fixed_div = $("#fixed-added").html();
+        var random_div = $("#random-added").html();
+        return fixed_div+random_div;
+    }
 }); //document

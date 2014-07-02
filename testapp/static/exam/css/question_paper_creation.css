@@ -111,3 +111,9 @@ body {
 .red-alert {
     border: 2px solid red;
 }
+#myModal .qcard .remove{
+    display: none;
+}
+.well{
+    padding: 5px;
+}
