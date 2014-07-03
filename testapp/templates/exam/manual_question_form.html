@@ -31,19 +31,19 @@ select
     
 <ul class="tabs" data-tabs="tabs">
     <li class="active" id="fixed-tab">
-        <a href="#fixed-questions">
+        <a href="#fixed-questions" id="fixed">
             STEP 1<br>
             Add Fixed Questions
         </a>
     </li>
     <li id="random-tab">
-        <a href="#random-questions">
+        <a href="#random-questions" id="random">
             STEP 2<br>
             Add Random Questions
         </a>
     </li>
     <li id="finish-tab">
-    <a href="#finish">
+    <a href="#finish" id="finished">
         STEP 3<br>
         Finish
     </a></li>
@@ -88,6 +88,11 @@ select
                 </div>
             </div>
         </div> <!-- /.row -->
+        <br>
+        <div class="pull-right">
+            <a class="btn" id="fixed-next">Next &gt;</a>
+        </div>
+
     </div> <!-- /#fixed-questions -->
 
 
@@ -109,7 +114,14 @@ select
                 </div>
             </div>
         </div> <!-- /.row -->
-    </div> <!-- /#random-questions -->
+        <br>
+        <div class="pull-left">
+            <a class="btn" id="random-prev">&lt; Prev</a>
+        </div>
+        <div class="pull-right">
+            <a class="btn" id="random-next">Next &gt;</a>
+        </div>
+   </div> <!-- /#random-questions -->
 
     <div class="tab-pane" id="finish">
         <center>
@@ -119,23 +131,18 @@ select
                 <span>Auto shuffle.</span>
             </label> <br><br>
             <input class ="btn primary large" type="button" id="preview" value="Preview question paper">
-            <input class ="btn primary large" type="submit" value="Save question paper">
-        </center>
+            <input class ="btn primary large" type="button" id="save" value="Save question paper">
+            <br>
+            <div class="pull-left">
+                <a class="btn" id="finish-prev">&lt; Prev</a>
+            </div>
+       </center>
     </div> <!-- /#finish -->
 </div>
 <!-- /.tab-content -->
 </form>
 <br>
 <div class="clearfix"></div>
-<br>
-<div id="stepper">
-    <div class="pull-left">
-        <a class="btn" href="#">&lt; Prev</a>
-    </div>
-    <div class="pull-right">
-        <a class="btn" href="#">Next &gt;</a>
-
-    </div>
 
 <!-- Modal -->
 <div class="modal fade " id="myModal" >
@@ -153,6 +160,21 @@ select
   </div>
 </div>
 
+<div class="modal fade " id="modalSave" >
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" id="myModalLabel">Cannot Save</h4>
+      </div>
+      <div id = "modal_body"class="modal-body">
+          Please select questions for your paper
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn primary close" data-dismiss="modal">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
 </div>
 
 <script>
