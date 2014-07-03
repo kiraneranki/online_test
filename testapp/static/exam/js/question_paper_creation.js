@@ -196,18 +196,41 @@ $(document).ready(function(){
     /* show preview on preview click*/
     $("#preview").click(function(){
         questions = getQuestions()
-       $('#modal_body').html(questions);
+        if(questions.trim() == ""){
+            $('#modal_body').html("No questions selected");
+        }
+        else {
+            $('#modal_body').html(questions);
+        }
     $("#myModal").modal('show');
     });
 
-    /*$('#save').click(function(){
+    $("#fixed-next").click(function(){
+        $("#random").click();
+    });
+    $("#random-next").click(function(){
+        $("#finished").click();
+    });
+
+    $("#random-prev").click(function(){
+        $("#fixed").click();
+    });
+
+    $("#finish-prev").click(function(){
+        $("#random").click();
+    });
+
+    $('#save').click(function(){
         console.log("save");
         questions = getQuestions();
         if(questions.trim() == ""){
-            console.log("here)";
+            $("#modalSave").modal("show");
+        }
+        else {
+            document.forms["frm"].submit();
         }
     });
-    */
+
     function getQuestions(){
         var fixed_div = $("#fixed-added").html();
         var random_div = $("#random-added").html();
