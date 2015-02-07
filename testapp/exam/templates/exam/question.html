@@ -49,6 +49,19 @@ function setSnippetHeight()
     autoresize();
 }
 
+function validate()
+{
+        name = document.getElementById("assignment").value;
+        if (name == "")
+        {
+            alert("Kindly upload a file!!");
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+}
 </script>
 {% endblock script %}
 
@@ -108,6 +121,11 @@ function setSnippetHeight()
          <input type=file id="assignment" name="assignment">
          <hr>
          {% endif %}
+         {% if question.type == "oq" %}
+         <p>Write answers for the given questions in the answer sheet provided to you<p>
+         <a href="{{URL_ROOT}}/static/exam/gitfile/repo.tgz">Click here to download</a>
+         <hr>
+         {% endif %}
          {% if question.type == "mcc" %}
          {% for option in question.options.strip.splitlines %}
          <input name="answer" type="checkbox" value="{{ option }}"> {{ option }}
@@ -130,7 +148,9 @@ function setSnippetHeight()
          {% if question.type == "mcq" or question.type == "mcc "%}
          <br><button class="btn" type="submit" name="check" id="check">Submit Answer</button>&nbsp;&nbsp;
          {% elif question.type == "basgn" %}
-         <br><button class="btn" type="submit" name="check" id="check">Submit Answer</button>&nbsp;&nbsp;
+         <br><button class="btn" type="submit" name="check" id="check" onClick="return validate();">Submit Answer</button>&nbsp;&nbsp;
+         {% elif question.type == "oq" %}
+         <p>Click Skip Question, to move to the next question</p>
          {% else %}
          <button class="btn" type="submit" name="check" id="check" onClick="submitCode();">Check Answer</button>&nbsp;&nbsp;
          {% endif %}

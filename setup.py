@@ -28,7 +28,7 @@ setup(
         'django==1.6',
         'mysql-python==1.2.5',
         'django-taggit==0.12.2',
-        'django-taggit-autocomplete-modified>=0.2',
+        'django-taggit-autocomplete-modified==0.1.0b4',
     ],
     dependency_links=[link+'#egg=django_taggit_autocomplete_modified-0.2'],
     classifiers=[

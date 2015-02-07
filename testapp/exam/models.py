@@ -23,6 +23,7 @@ languages = (
         ("C++", "C++ Language"),
         ("java", "Java Language"),
         ("scilab", "Scilab"),
+        ("git", "Git"),
                             )
 
 
@@ -31,6 +32,7 @@ question_types = (
         ("mcc", "Multiple Correct Choices"),
         ("code", "Code"),
         ("basgn", "Bash Assignment"),
+        ("oq", "Only questions"),
                         )
 attempts = [(i, i) for i in range(1, 6)]
 attempts.append((-1, 'Infinite'))

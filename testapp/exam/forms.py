@@ -20,6 +20,7 @@ languages = (
     ("C++", "C++ Language"),
     ("java", "Java Language"),
     ("scilab", "Scilab"),
+    ("git", "Git"),
     )
 
 question_types = (
@@ -28,6 +29,7 @@ question_types = (
     ("mcc", "Multiple Correct Choices"),
     ("code", "Code"),
     ("basgn", "Bash Assignment"),
+    ("oq", "Only questions"),
     )
 
 UNAME_CHARS = letters + "._" + digits

@@ -17,6 +17,7 @@ urlpatterns = patterns('testapp.exam.views',
     url(r'^(?P<q_id>\d+)/check/$', 'check'),
     url(r'^(?P<q_id>\d+)/check/(?P<attempt_no>\d+)/(?P<questionpaper_id>\d+)/$', 'check'),
     url(r'^intro/$', 'start'),
+    url(r'^up/$', 'updation'),
 
     url(r'^manage/$', 'prof_manage'),
     url(r'^manage/addquestion/$', 'add_question'),
