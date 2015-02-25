@@ -3,7 +3,7 @@ settings for exam app.
 """
 # The ports the code server should run on.  This will run one separate
 # server for each port listed in the following list.
-SERVER_PORTS = [8001]  # range(8001, 8026)
+SERVER_PORTS = range(8001, 8011)  # range(8001, 8026)
 
 # The server pool port.  This is the server which returns available server
 # ports so as to minimize load.  This is some random number where no other

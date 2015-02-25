@@ -17,10 +17,9 @@
     {% if cannot_attempt %}
         <p>You have not passed the prerequisite & hence you cannot take the quiz.</p>
     {% endif %}
-    <h4>List of quizzes availbale for you</h4>
     {% if not quizzes %}
-        <h5>No active quizzes for you</h5>
-    {% endif %}
+        <h4>No quizzes available for you</h4>
+    {% else %}
     <table>
     <th>Quiz</th>
     <th>Pre requisite quiz</th>
@@ -39,7 +38,8 @@
         </tr>
     {% endfor %}
     </table>
-    <hr>    
+    {% endif %}
+    <!--
     <h4>List of quizzes taken by you so far</h4>
     {% if quizzes_taken %}
         <table class="bordered-table zebra-striped">
@@ -75,6 +75,7 @@
     {% else %}
         <p>You have not taken any quiz yet !!</p>
     {% endif %}
+    -->
 
 
 {% endblock %}

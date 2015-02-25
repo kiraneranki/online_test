@@ -103,7 +103,9 @@ class CodeServer(object):
             info = traceback.extract_tb(tb)
             fname, lineno, func, text = info[-1]
             text = str(test_code).splitlines()[lineno-1]
-            err = "{0} {1} in: {2}".format(type.__name__, str(value), text)
+            error_name = type.__name__
+            err = "{0}".format(text)
+            err = err + "\n" + error_name
         except:
             type, value = sys.exc_info()[:2]
             err = "Error: {0}".format(repr(value))

@@ -1,3 +1,4 @@
+
 {% extends "base.html" %}
 
 <!DOCTYPE html>
@@ -11,7 +12,6 @@
 
 {% block script %}
 <script src="{{ URL_ROOT }}/static/exam/js/question.js"></script>
-
 <script>
 var time_left = {{ time_left }} 
 function secs_to_time(secs)
@@ -48,12 +48,28 @@ function setSnippetHeight()
     ta.style.height = height;
     autoresize();
 }
+
 function call_skip(url)
 {
     form = document.forms["code"]
     form.action = url
     form.submit();
 }
+
+function validate()                                                             
+{                                                                               
+    name = document.getElementById("assignment").value;                     
+    if (name == "")                                                         
+    {                                                                       
+       alert("Kindly upload a file!!");                                    
+       return false;                                                       
+    }                                                                       
+    else                                                                    
+    {                                                                       
+       return true;                                                        
+    }                                                                       
+} 
+
 </script>
 {% endblock script %}
 
@@ -113,6 +129,8 @@ function call_skip(url)
      <h4><u> {{ question.summary }} </u><font class=pull-right>(Marks : {{ question.points }}) </font></h4><br>
 	 <font size=3 face=arial>	{{ question.description|safe }} </font>
          {% if error_message %}
+    <br><br>
+    Executed the following code:
 	 <div class="alert alert-error">
 	 {% for e in error_message.splitlines %}
 	 {{ e|join:"" }} 
@@ -121,7 +139,7 @@ function call_skip(url)
 	 </div>{% endif %}
 
          <p id="status"></p>
-         
+
          <form id="code" action="{{URL_ROOT}}/exam/{{ question.id }}/check/{{ paper.attempt_number }}/{{ paper.question_paper.id }}/" method="post" enctype="multipart/form-data">
              {% csrf_token %}
              <input type=hidden name="question_id" id="question_id" value={{ question.id }}></input>
@@ -134,6 +152,10 @@ function call_skip(url)
          {% if question.type == "basgn" %}
          <p>Upload assignment file for the said question<p>
          <input type=file id="assignment" name="assignment">
+         <hr>
+         {% endif %}
+         {% if question.type == "oq" %}
+         <a href="{{ URL_ROOT }}/static/exam/gitfile/repo.tgz">Click here to download</a>
          <hr>
          {% endif %}
          {% if question.type == "mcc" %}
@@ -154,16 +176,15 @@ function call_skip(url)
        </script>
        <script>addLineNumbers('snippet');</script>
          {% endif %}
-
          {% if question.type == "mcq" or question.type == "mcc "%}
          <br><button class="btn" type="submit" name="check" id="check">Submit Answer</button>&nbsp;&nbsp;
          {% elif question.type == "basgn" %}
-         <br><button class="btn" type="submit" name="check" id="check">Submit Answer</button>&nbsp;&nbsp;
+         <br><button class="btn" type="submit" name="check" id="check" onClick="return validate();" >Upload</button>&nbsp;&nbsp;
+         {% elif question.type == "oq" %}
+         <p>Answers to be written in the answer sheet provided to you</p>
          {% else %}
-         <button class="btn" type="submit" name="check" id="check" onClick="submitCode();">Check Answer</button>&nbsp;&nbsp;
+         <button class="btn" type="submit" name="check" id="check" onClick="submitCode();">Submit Answer</button>&nbsp;&nbsp;
          {% endif %}
          <button class="btn" type="submit" name="skip" id="skip">Skip Question</button>
          </form>
-         
-      
 {% endblock content %}

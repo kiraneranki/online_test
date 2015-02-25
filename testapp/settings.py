@@ -26,12 +26,12 @@ ADMINS = (
 MANAGERS = ADMINS
 
 CURDIR = abspath(dirname(__file__))
-DB_FILE = join(CURDIR, 'exam.db')
+#DB_FILE = join(CURDIR, 'exam.db')
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',  # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': DB_FILE,                      # Or path to database file if using sqlite3.
+        'ENGINE': 'django.db.backends.mysql',  # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
+        'NAME': 'onlinetest',                      # Or path to database file if using sqlite3.
         'USER': '',                      # Not used with sqlite3.
         'PASSWORD': '',                  # Not used with sqlite3.
         'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
@@ -151,7 +151,8 @@ INSTALLED_APPS = (
     # 'django.contrib.admindocs',
     'exam',
     'taggit_autocomplete_modified',
-    'debug_toolbar',
+    # 'debug_toolbar',
+    'south',
 )
 
 # A sample logging configuration. The only tangible logging
