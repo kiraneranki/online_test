@@ -10,7 +10,10 @@
 {% endblock %}
 
 {% block script %}
+<script src="/static/taggit_autocomplete_modified/jquery.min.js" type="text/javascript"></script>
+<script src="/static/taggit_autocomplete_modified/jquery.autocomplete.js" type="text/javascript"></script>
 <script src="{{ URL_ROOT }}/static/exam/js/question.js"></script>
+<script src="{{ URL_ROOT }}/static/exam/js/bootstrap-modal.js"></script>
 
 <script>
 var time_left = {{ time_left }} 
@@ -47,6 +50,19 @@ function setSnippetHeight()
     ta.style.height = 'auto';
     ta.style.height = height;
     autoresize();
+}
+
+function validate(){
+    name = document.getElementById("assignment").value;
+    console.log(name)
+    if(name == ""){
+        $("#upload_alert").modal("show");
+        return false;
+    }
+    else
+    {
+        return true;
+    }
 }
 
 </script>
@@ -103,7 +119,7 @@ function setSnippetHeight()
          <input name="answer" type="radio" value="{{option}}" />{{option}} <br/>
          {% endfor %}
          {% endif %}
-         {% if question.type == "basgn" %}
+         {% if question.type == "upload" %}
          <p>Upload assignment file for the said question<p>
          <input type=file id="assignment" name="assignment">
          <hr>
@@ -129,8 +145,8 @@ function setSnippetHeight()
 
          {% if question.type == "mcq" or question.type == "mcc "%}
          <br><button class="btn" type="submit" name="check" id="check">Submit Answer</button>&nbsp;&nbsp;
-         {% elif question.type == "basgn" %}
-         <br><button class="btn" type="submit" name="check" id="check">Submit Answer</button>&nbsp;&nbsp;
+         {% elif question.type == "upload" %}
+         <br><button class="btn" type="submit" name="check" id="check" onClick="return validate();">Upload</button>&nbsp;&nbsp;
          {% else %}
          <button class="btn" type="submit" name="check" id="check" onClick="submitCode();">Check Answer</button>&nbsp;&nbsp;
          {% endif %}
@@ -138,4 +154,21 @@ function setSnippetHeight()
          </form>
          
       
+    <!-- Modal -->
+    <div class="modal fade " id="upload_alert" >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title" id="myModalLabel">File not selected</h4>
+          </div>
+          <div id = "modal_body"class="modal-body">
+              <font color="brown"><b>Kindly attach a file and then click upload.</b></font>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn primary close" data-dismiss="modal">OK</button>
+          </div>
+        </div>
+      </div>
+   </div>
+
 {% endblock content %}

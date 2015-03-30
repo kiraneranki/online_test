@@ -618,8 +618,10 @@ rights/permissions and log in."""
         users_per_paper = []
         for paper in question_papers:
             answer_papers = AnswerPaper.objects.filter(question_paper=paper)
-            users_passed = AnswerPaper.objects.filter(question_paper=paper, passed=True).count()
-            users_failed = AnswerPaper.objects.filter(question_paper=paper, passed=False).count()
+            users_passed = AnswerPaper.objects.filter(question_paper=paper,
+                    passed=True).count()
+            users_failed = AnswerPaper.objects.filter(question_paper=paper,
+                    passed=False).count()
             temp = paper, answer_papers, users_passed, users_failed
             users_per_paper.append(temp)
         context = {'user': user, 'users_per_paper': users_per_paper}
@@ -760,7 +762,7 @@ def check(request, q_id, attempt_no=None, questionpaper_id=None):
         user_answer = request.POST.get('answer')
     elif question.type == 'mcc':
         user_answer = request.POST.getlist('answer')
-    elif question.type == 'basgn':
+    elif question.type == 'upload':
         assign = AssignmentUpload()
         assign.user = user.profile
         assign.assignmentQuestion = question
@@ -779,7 +781,7 @@ def check(request, q_id, attempt_no=None, questionpaper_id=None):
     # If we were not skipped, we were asked to check.  For any non-mcq
     # questions, we obtain the results via XML-RPC with the code executed
     # safely in a separate process (the code_server.py) running as nobody.
-    if not question.type == 'basgn':
+    if not question.type == 'upload':
         correct, success, err_msg = validate_answer(user, user_answer, question)
         if correct:
             new_answer.correct = correct
@@ -1197,19 +1199,3 @@ def design_questionpaper(request):
         context = {'form': form}
         return my_render_to_response('exam/design_questionpaper.html',
                                      context, context_instance=ci)
-
-
-def submit_assignment(request, question_id=None):
-    user = request.user
-    skip = request.POST.get('skip', None)
-    if request.method == "POST" and skip is not None:
-        question = Question.objects.get(id=question_id)
-        assignment = AssignmentUpload()
-        assignment.user = user
-        assignment.assignmentQuestion = question
-        assignment.assignmentFile = request.FILES['assignment']
-        assignment.save()
-        #next question ke liye code idhar
-    else:
-        #code for skipping the question
-        pass

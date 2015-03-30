@@ -27,7 +27,7 @@ question_types = (
     ("mcq", "Multiple Choice"),
     ("mcc", "Multiple Correct Choices"),
     ("code", "Code"),
-    ("basgn", "Bash Assignment"),
+    ("upload", "Assignment Upload"),
     )
 
 UNAME_CHARS = letters + "._" + digits
@@ -138,7 +138,7 @@ class QuizForm(forms.Form):
         super(QuizForm, self).__init__(*args, **kwargs)
         quizzes = [('', 'Select a prerequisite quiz')]
         quizzes = quizzes + \
-                       list(Quiz.objects.values_list('id','description'))
+                       list(Quiz.objects.values_list('id', 'description'))
         self.fields['prerequisite'] = forms.CharField(required=False,
                                    widget=forms.Select(choices=quizzes))
 

@@ -30,7 +30,7 @@ question_types = (
         ("mcq", "Multiple Choice"),
         ("mcc", "Multiple Correct Choices"),
         ("code", "Code"),
-        ("basgn", "Bash Assignment"),
+        ("upload", "Assignment Upload"),
                         )
 attempts = [(i, i) for i in range(1, 6)]
 attempts.append((-1, 'Infinite'))
@@ -42,8 +42,10 @@ test_status = (
                 ('completed', 'Completed'),
               )
 
+
 def get_assignment_dir(instance, filename):
     return '%s/%s' % (instance.user.roll_number, instance.assignmentQuestion.id)
+
 
 ###############################################################################
 class Question(models.Model):
@@ -358,7 +360,7 @@ class AnswerPaper(models.Model):
             Checks whether student passed or failed, as per the quiz
             passing criteria.
         """
-        if self.percent is not None: 
+        if self.percent is not None:
             if self.percent >= self.question_paper.quiz.pass_criteria:
                 self.passed = True
             else:
@@ -385,9 +387,9 @@ class AnswerPaper(models.Model):
     def __unicode__(self):
         u = self.user
         return u'Question paper for {0} {1}'.format(u.first_name, u.last_name)
-        
 
-################################################################################
+
+###############################################################################
 class AssignmentUpload(models.Model):
     user = models.ForeignKey(Profile)
     assignmentQuestion = models.ForeignKey(Question)
