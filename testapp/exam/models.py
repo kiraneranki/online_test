@@ -23,6 +23,7 @@ languages = (
         ("C++", "C++ Language"),
         ("java", "Java Language"),
         ("scilab", "Scilab"),
+        ("git", "Git"),
                             )
 
 

@@ -30,7 +30,7 @@ from multiprocessing import Process, Queue
 import subprocess
 import re
 # Local imports.
-from settings import SERVER_PORTS, SERVER_TIMEOUT, SERVER_POOL_PORT
+from settings import SERVER_PORTS, SERVER_TIMEOUT, SERVER_POOL_PORT, CURDIR
 
 MY_DIR = abspath(dirname(__file__))
 
@@ -320,9 +320,7 @@ class CodeServer(object):
         submit_f.close()
         submit_path = abspath(submit_f.name)
 
-        ref_path = test_code.strip()
-        if not ref_path.startswith('/'):
-            ref_path = join(MY_DIR, ref_path)
+        ref_path = '%s/c_files/main_%s.c' % (CURDIR, test_code)
 
         # Add a new signal handler for the execution of this code.
         old_handler = signal.signal(signal.SIGALRM, timeout_handler)

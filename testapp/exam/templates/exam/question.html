@@ -124,6 +124,11 @@ function validate(){
          <input type=file id="assignment" name="assignment">
          <hr>
          {% endif %}
+         {% if question.type == "oq" %}
+         <p>Write answers for the given questions in the answer sheet provided to you<p>
+         <a href="{{URL_ROOT}}/static/exam/gitfile/repo.tgz">Click here to download</a>
+         <hr>
+         {% endif %}
          {% if question.type == "mcc" %}
          {% for option in question.options.strip.splitlines %}
          <input name="answer" type="checkbox" value="{{ option }}"> {{ option }}

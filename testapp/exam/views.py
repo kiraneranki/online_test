@@ -203,6 +203,71 @@ def intro(request, questionpaper_id):
     else:
         return my_redirect("/exam/quizzes/")
 
+def updation(request):
+    '''
+    ap1 = AnswerPaper.objects.filter(question_paper_id=7, attempt_number=1)
+    dict_q1 = {}
+    dict_m1 = {}
+    quests = [22,23,24]
+    qid = []
+    marks = []
+    for a in ap1:
+        print "=============="
+        for q in quests:
+            try:
+                answered = a.answers.get(question_id=q)
+                m = answered.marks
+            except:
+                m = 0
+            qid.append(q)
+            marks.append(m)
+        dict_q1[str(a.user.profile.roll_number)] = qid
+        dict_m1[str(a.user.profile.roll_number)] = marks
+        qid=[]
+        marks=[]
+
+    f = open('attempt1.csv', 'w')
+    f.write('Roll_NO,Q1,Q2,Q3\n')
+    for roll in dict_m1:
+        f.write(roll+","+",".join(map(str, dict_m1[roll])))
+        f.write('\n')
+    f.close()
+
+    ###################################
+    
+    ap2 = AnswerPaper.objects.filter(question_paper_id=7, attempt_number=2)
+    dict_q2 = {}
+    dict_m2 = {}
+    qid = []
+    marks = []
+    for a in ap2:
+        print "=============="
+        for q in quests:
+            try:
+                answered = a.answers.get(question_id=q)
+                m = answered.marks
+            except:
+                m = 0
+            qid.append(q)
+            marks.append(m)
+        dict_q2[str(a.user.profile.roll_number)] = qid
+        dict_m2[str(a.user.profile.roll_number)] = marks
+        qid=[]
+        marks=[]
+
+    f2 = open('attempt2.csv', 'w')
+    f2.write('Roll_NO,Q1,Q2,Q3\n')
+    for roll in dict_m2:
+        f2.write(roll+","+",".join(map(str, dict_m2[roll])))
+        f2.write('\n')
+    f2.close()
+    p1 = "Q:{0}, M:{1}".format(len(dict_q1), len(dict_m1))
+    p2 = "Q:{0}, M:{1}".format(len(dict_q2), len(dict_m2))
+    p3 = "Q:{0}, M:{1}".format(len(dict_q3), len(dict_m3))
+    return HttpResponse("done"+p1+p2+p3)
+    '''
+    pass
+
 
 def results_user(request):
     """Show list of Results of Quizzes that is taken by logged-in user."""
@@ -1184,7 +1249,8 @@ def design_questionpaper(request):
                 question_paper.fixed_questions.add(question_id)
         if random_questions:
             for random_question, num in zip(random_questions, random_number):
-                question = Question.objects.get(id=random_question[0])
+                qid = random_question.split(',')[0]
+                question = Question.objects.get(id=int(qid))
                 marks = question.points
                 question_set = QuestionSet(marks=marks, num_questions=num)
                 question_set.save()
